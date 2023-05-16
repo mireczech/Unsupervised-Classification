@@ -141,6 +141,12 @@ def get_train_dataset(p, transform, to_augmented_dataset=False,
         subset_file = './data/imagenet_subsets/%s.txt' %(p['train_db_name'])
         dataset = ImageNetSubset(subset_file=subset_file, split='train', transform=transform)
 
+    # mireczech
+    # TODO: add more
+    if p['train_db_name'] == 'cifar10':
+        from mireczech.datasets import Cifar10Dataset
+        dataset = Cifar10Dataset(split='train', transform=transform)
+
     else:
         raise ValueError('Invalid train dataset {}'.format(p['train_db_name']))
     
@@ -179,6 +185,12 @@ def get_val_dataset(p, transform=None, to_neighbors_dataset=False):
         from data.imagenet import ImageNetSubset
         subset_file = './data/imagenet_subsets/%s.txt' %(p['val_db_name'])
         dataset = ImageNetSubset(subset_file=subset_file, split='val', transform=transform)
+
+    # mireczech
+    # TODO: add more
+    if p['val_db_name'] == 'cifar10':
+        from mireczech.datasets import Cifar10Dataset
+        dataset = Cifar10Dataset(split='test', transform=transform)
     
     else:
         raise ValueError('Invalid validation dataset {}'.format(p['val_db_name']))
