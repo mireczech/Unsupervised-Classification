@@ -13,6 +13,32 @@ class SimCLRModel(nn.Module):
 
 
     def forward(self, x):
-        h = self.backbone(x).flatten(start_dim=1)
+        return self.backbone(x).flatten(start_dim=1)
 
-        return h
+
+class ClusteringModel(nn.Module):
+    def __init__(self, backbone, feature_dim, num_classes):
+        super(ClusteringModel, self).__init__()
+
+        self.backbone = backbone
+        self.cluster_head = nn.ModuleList([nn.Linear(feature_dim, num_classes)])
+            
+    def forward(self, x, forward_pass='default'):
+        if forward_pass == 'default':
+            features = self.backbone(x)
+            out = [cluster_head(features) for cluster_head in self.cluster_head]
+
+        elif forward_pass == 'backbone':
+            out = self.backbone(x)
+
+        elif forward_pass == 'head':
+            out = [cluster_head(x) for cluster_head in self.cluster_head]
+
+        elif forward_pass == 'return_all':
+            features = self.backbone(x)
+            out = {'features': features, 'output': [cluster_head(features) for cluster_head in self.cluster_head]}
+        
+        else:
+            raise ValueError('Invalid forward pass {}'.format(forward_pass))        
+
+        return out

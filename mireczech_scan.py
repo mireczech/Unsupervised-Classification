@@ -15,6 +15,7 @@ from utils.common_config import get_train_transformations, get_val_transformatio
                                 adjust_learning_rate
 from utils.evaluate_utils import get_predictions, scan_evaluate, hungarian_evaluate
 from utils.train_utils import scan_train
+from mireczech.models import SimCLRModel, ClusteringModel
 
 FLAGS = argparse.ArgumentParser(description='SCAN Loss')
 FLAGS.add_argument('--config_env', help='Location of path config file')
@@ -42,8 +43,16 @@ def main():
     print('Train samples %d - Val samples %d' %(len(train_dataset), len(val_dataset)))
     
     # Model
+    # Load final model
+    state_dict = torch.load(p['pretext_model'], map_location='cpu')['state_dict']
+    for k in list(state_dict.keys()):
+        if not k.startswith('backbone.'):
+            del state_dict[k]
+
     print(colored('Get model', 'blue'))
-    model = get_model(p, p['pretext_model'])
+    backbone = SimCLRModel()
+    backbone.load_state_dict(state_dict)
+    model = ClusteringModel(backbone=backbone, feature_dim=512, num_classes=p['num_classes'])
     print(model)
     model = torch.nn.DataParallel(model)
     model = model.cuda()
@@ -67,7 +76,7 @@ def main():
     if os.path.exists(p['scan_checkpoint']):
         print(colored('Restart from checkpoint {}'.format(p['scan_checkpoint']), 'blue'))
         checkpoint = torch.load(p['scan_checkpoint'], map_location='cpu')
-        model.load_state_dict(checkpoint['model'])
+        model.load_state_dict(checkpoint)
         optimizer.load_state_dict(checkpoint['optimizer'])        
         start_epoch = checkpoint['epoch']
         best_loss = checkpoint['best_loss']
