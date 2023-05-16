@@ -88,3 +88,18 @@ class Cifar10Dataset(ImageDatasetWithFolderStructure):
             transform=None,
     ):
         ImageDatasetWithFolderStructure.__init__(self, root, split, transform, size=32)
+
+
+def get_dataset_class_by_name(dataset_name: str):
+    if dataset_name == 'matek':
+        return MatekDataset
+    elif dataset_name == 'isic':
+        return IsicDataset
+    elif dataset_name == 'retinopathy':
+        return RetinopathyDataset
+    elif dataset_name == 'jurkat':
+        return JurkatDataset
+    elif dataset_name == 'cifar10':
+        return Cifar10Dataset
+    else:
+        raise ValueError(f'unknown dataset name: {dataset_name}')

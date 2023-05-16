@@ -1,0 +1,33 @@
+
+# Setup
+setup: simclr
+
+# Dataset
+train_db_name: jurkat
+val_db_name: jurkat
+num_classes: 7
+
+# Others
+num_workers: 8
+batch_size: 128
+model_kwargs:
+   features_dim: 512
+
+# Transformations
+augmentation_strategy: ours 
+augmentation_kwargs:
+   crop_size: 64
+   normalize:
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+   num_strong_augs: 4
+   cutout_kwargs:
+     n_holes: 1
+     length: 16
+     random: True
+
+transformation_kwargs:
+   crop_size: 64
+   normalize:
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
